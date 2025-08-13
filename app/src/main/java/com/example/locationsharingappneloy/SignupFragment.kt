@@ -1,4 +1,4 @@
-package com.example.drawer.ui.LoginSignup
+package com.example.locationsharingappneloy
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.locationsharingappneloy.MainActivity
 import com.example.locationsharingappneloy.databinding.FragmentSignupBinding
+import com.example.locationsharingappneloy.locationui.HomeActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class SignupFragment : Fragment() {
@@ -60,7 +61,7 @@ class SignupFragment : Fragment() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), "Account Created Successfully", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(requireContext(), MainActivity::class.java))
+                    startActivity(Intent(requireContext(), HomeActivity::class.java))
                     requireActivity().finish()
                 } else {
                     Toast.makeText(requireContext(), task.exception?.message ?: "Sign Up Failed", Toast.LENGTH_SHORT).show()
