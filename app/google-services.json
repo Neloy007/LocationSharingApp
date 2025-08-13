@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1094936035363",
+    "project_id": "locationsharingappneloy",
+    "storage_bucket": "locationsharingappneloy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1094936035363:android:8861aa985af8e802b03196",
+        "android_client_info": {
+          "package_name": "com.example.locationsharingappneloy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPmO7npJPmGaKv60rG1uKP_vpJX_zCxYQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
