@@ -10,7 +10,7 @@
         android:id="@+id/imgAvatar"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/profilex"
+        android:src="@drawable/profile"
         app:civ_border_width="2dp"
         app:civ_border_color="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
@@ -18,7 +18,7 @@
 
 
     <TextView
-        android:id="@+id/txtName"
+        android:id="@+id/tvName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textStyle="bold"
@@ -33,16 +33,16 @@
         android:ellipsize="end"/>
 
     <TextView
-        android:id="@+id/txtMeta"
+        android:id="@+id/tvLocation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="15sp"
         android:hint="Description"
         android:layout_marginTop="10dp"
         android:textColorHint="@color/black"
-        app:layout_constraintStart_toStartOf="@id/txtName"
-        app:layout_constraintEnd_toEndOf="@id/txtName"
-        app:layout_constraintTop_toBottomOf="@id/txtName"
+        app:layout_constraintStart_toStartOf="@id/tvName"
+        app:layout_constraintEnd_toEndOf="@id/tvName"
+        app:layout_constraintTop_toBottomOf="@id/tvName"
         android:maxLines="1"
         android:ellipsize="end"/>
 

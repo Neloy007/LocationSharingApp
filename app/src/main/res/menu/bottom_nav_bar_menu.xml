@@ -9,7 +9,7 @@
     <item
         android:id="@+id/nav_search"
         android:icon="@drawable/ic_location"
-        android:title="Locations" />
+        android:title="Location"/>
 
     <item
         android:id="@+id/nav_profile"

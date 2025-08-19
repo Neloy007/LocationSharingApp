@@ -2,91 +2,115 @@ package com.example.locationsharingappneloy.locationui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.locationsharingappneloy.R
-import com.example.locationsharingapp.data.repo.LocationRepository
-import com.example.locationsharingappneloy.adapter.UserAdapter
-import com.example.locationsharingappneloy.data.location.LocationDataSource
-import com.example.locationsharingappneloy.data.viewmodel.LocationViewModel
 import com.example.locationsharingappneloy.databinding.FragmentLocationsBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
 
-class LocationsFragment : Fragment(R.layout.fragment_locations) {
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
+
+class LocationsFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentLocationsBinding? = null
     private val binding get() = _binding!!
 
-    private val adapter by lazy { UserAdapter() }
+    private lateinit var mMap: GoogleMap
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private val viewModel: LocationViewModel by viewModels {
-        object : androidx.lifecycle.ViewModelProvider.Factory {
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val ds = LocationDataSource(requireContext().applicationContext)
-                val repo = LocationRepository(FirebaseAuth.getInstance(), FirebaseFirestore.getInstance())
-                @Suppress("UNCHECKED_CAST")
-                return LocationViewModel(ds, repo) as T
-            }
-        }
+    private val LOCATION_PERMISSION_REQUEST = 1001
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentLocationsBinding.inflate(inflater, container, false)
+        return binding.root
     }
-
-    private val requestPermissionsLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            val fine = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-            val coarse = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-            if (fine || coarse) viewModel.startLocationUpdates()
-        }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentLocationsBinding.bind(view)
 
-        // Setup RecyclerView
-        binding.rvUsers.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvUsers.adapter = adapter
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        // Collect users flow lifecycle-aware
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.users.collect { adapter.submitList(it) }
-            }
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        binding.btnCurrentLocation.setOnClickListener {
+            getCurrentLocation()
         }
-
-        // Start location updates
-        checkLocationPermissionsAndStart()
     }
 
-    private fun checkLocationPermissionsAndStart() {
-        val finePermission = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        )
-        val coarsePermission = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+        enableMyLocation()
+    }
 
-        if (finePermission == PackageManager.PERMISSION_GRANTED ||
-            coarsePermission == PackageManager.PERMISSION_GRANTED
+    private fun enableMyLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
-            viewModel.startLocationUpdates()
+            mMap.isMyLocationEnabled = true
+            getCurrentLocation()
         } else {
-            requestPermissionsLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST
             )
+        }
+    }
+
+    private fun getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Snackbar.make(binding.root, "Location permission required", Snackbar.LENGTH_SHORT)
+                .show()
+            return
+        }
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            location?.let {
+                val currentLatLng = LatLng(it.latitude, it.longitude)
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                mMap.addMarker(MarkerOptions().position(currentLatLng).title("You are here"))
+            } ?: Snackbar.make(binding.root, "Unable to get location", Snackbar.LENGTH_SHORT)
+                .show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == LOCATION_PERMISSION_REQUEST &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            enableMyLocation()
         }
     }
 

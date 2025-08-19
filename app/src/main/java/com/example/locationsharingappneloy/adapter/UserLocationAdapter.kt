@@ -8,54 +8,42 @@ import com.example.locationsharingappneloy.R
 import com.example.locationsharingappneloy.databinding.ItemUserLocationBinding
 import com.example.locationsharingappneloy.model.UserLocation
 
-class UserAdapter(
-    private var users: List<UserLocation>,
+class UserLocationAdapter(
+    private var userList: List<UserLocation>,
     private val onItemClick: (UserLocation) -> Unit
-) : RecyclerView.Adapter<UserAdapter.UserViewHolder>() {
+) : RecyclerView.Adapter<UserLocationAdapter.UserViewHolder>() {
 
     inner class UserViewHolder(val binding: ItemUserLocationBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val binding = ItemUserLocationBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
+            LayoutInflater.from(parent.context), parent, false
         )
         return UserViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        val user = users[position]
+        val user = userList[position]
         with(holder.binding) {
-            // Set name
             tvName.text = user.name
-
-            // Set location as a string, fallback if lat/lng are null
             tvLocation.text = if (user.lat != null && user.lng != null) {
                 "Lat: ${user.lat}, Lng: ${user.lng}"
-            } else {
-                "Location not available"
-            }
+            } else "Location not available"
 
-            // Load avatar with Glide, fallback to profile placeholder
             Glide.with(root.context)
                 .load(user.photoUrl ?: R.drawable.profilex)
                 .placeholder(R.drawable.profilex)
                 .into(imgAvatar)
 
-            // Handle click
-            root.setOnClickListener {
-                onItemClick(user)
-            }
+            root.setOnClickListener { onItemClick(user) }
         }
     }
 
-    override fun getItemCount(): Int = users.size
+    override fun getItemCount(): Int = userList.size
 
-    // Update data dynamically
-    fun updateData(newUsers: List<UserLocation>) {
-        users = newUsers
+    fun updateData(newList: List<UserLocation>) {
+        userList = newList
         notifyDataSetChanged()
     }
 }

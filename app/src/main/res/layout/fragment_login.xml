@@ -37,6 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="#2F000000"
         android:padding="28dp">
 
         <!-- Email -->
@@ -62,7 +63,7 @@
             android:layout_marginTop="18dp"
             android:hint="Password"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-
+            app:endIconMode="password_toggle"
             app:startIconTint="#7C4DFF">
 
             <com.google.android.material.textfield.TextInputEditText
