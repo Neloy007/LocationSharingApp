@@ -1,5 +1,6 @@
 package com.example.locationsharingappneloy.locationui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.locationsharingappneloy.R
@@ -30,9 +31,8 @@ class HomeActivity : AppCompatActivity() {
                         .commit()
                 }
                 R.id.nav_search -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, LocationsFragment())
-                        .commit()
+                    val intent = Intent(this, MapsActivity::class.java)
+                    startActivity(intent)
                 }
                 R.id.nav_profile -> {
                     supportFragmentManager.beginTransaction()
