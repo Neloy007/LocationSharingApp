@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     // CircleImageView

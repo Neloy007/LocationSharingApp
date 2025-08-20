@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.locationsharingappneloy.R
 import com.example.locationsharingappneloy.databinding.FragmentLoginBinding
 import com.example.locationsharingappneloy.locationui.HomeActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
 
@@ -32,12 +33,17 @@ class LoginFragment : Fragment() {
             val password = binding.passwordEtLogin.text.toString().trim()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                // TODO: Replace with Firebase Auth check
-                Toast.makeText(requireContext(), "Login Successful", Toast.LENGTH_SHORT).show()
-
-                val intent = Intent(requireContext(), HomeActivity::class.java)
-                startActivity(intent)
-                requireActivity().finish()
+                FirebaseAuth.getInstance()
+                    .signInWithEmailAndPassword(email, password)
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(), "Login Successful", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(requireContext(), HomeActivity::class.java)
+                        startActivity(intent)
+                        requireActivity().finish()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
             } else {
                 Toast.makeText(requireContext(), "Please enter email and password", Toast.LENGTH_SHORT).show()
             }
